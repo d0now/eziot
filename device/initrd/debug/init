@@ -1,0 +1,69 @@
+#!/bin/sh
+
+export PATH=/bin
+/bin/busybox --install -s /bin
+
+# Creating folder
+[ -d /dev ] || mkdir -m 0755 /dev
+[ -d /sys ] || mkdir /sys
+[ -d /proc ] || mkdir /proc
+[ -d /tmp ] || mkdir /tmp
+[ -d /run ] || mkdir /run
+[ -d /root ] || mkdir /root
+[ -d /etc ] || mkdir /etc
+[ -d /home ] || mkdir /home
+
+# Setup network
+mkdir /etc/network
+cat << EOF > /etc/network/interfaces
+auto lo
+iface lo inet loopback
+auto eth0
+iface eth0 inet static
+  address 192.168.100.100
+  gateway 192.168.100.1
+  netmask 255.255.255.0
+  network 192.168.100.0
+  broadcast 192.168.100.255
+EOF
+
+# Flag setup
+chmod 400 /flag
+
+# User setup
+echo 'root:x:0:0:root:/root:/bin/sh' > /etc/passwd
+echo 'root:x:0:' > /etc/group
+chmod 644 /etc/passwd
+chmod 644 /etc/group
+
+# Permission setup
+chown -R root:root /
+chmod 700 -R /root
+chmod 755 /dev
+chmod 700 /init
+
+# Mounts
+mkdir -p /var/lock
+mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
+mount -t proc -o nodev,noexec,nosuid proc /proc
+ln -sf /proc/mounts /etc/mtab
+mount -t devtmpfs -o nosuid,mode=0755 udev /dev
+mkdir -p /dev/pts
+mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
+mount -t tmpfs -o "noexec,nosuid,size=10%,mode=0755" tmpfs /run
+
+# Kernel protection
+chmod 551 /proc
+
+# Start service
+ifup lo
+ifconfig lo
+ifup eth0
+ifconfig eth0
+
+# Shell!
+setsid cttyhack setuidgid 0 sh
+
+umount /proc
+umount /sys
+poweroff -d 1 -n -f

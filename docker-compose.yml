@@ -1,0 +1,43 @@
+version: '3'
+
+networks:
+  eziot-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
+
+services:  
+  cloud:
+    build:
+      context: cloud/
+      dockerfile: ./Dockerfile
+    container_name: eziot-cloud
+    volumes:
+      - ./cloud/app:/app
+    hostname: eziot.cloud
+    networks:
+      eziot-network:
+        ipv4_address: 172.20.0.2
+    command: ["sleep", "infinity"]
+
+  device:
+    build:
+      context: device/build/
+      dockerfile: ./Dockerfile
+    container_name: eziot-device
+    privileged: true
+    networks:
+      eziot-network:
+        ipv4_address: 172.20.0.3
+    command: ["sleep", "infinity"]
+
+  hacker:
+    build:
+      context: hacker/
+      dockerfile: ./Dockerfile
+    container_name: eziot-hacker
+    networks:
+      eziot-network:
+        ipv4_address: 172.20.0.100
+    command: ["sleep", "infinity"]
