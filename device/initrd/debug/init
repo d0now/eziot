@@ -28,7 +28,7 @@ iface eth0 inet static
 EOF
 
 # Flag setup
-chmod 400 /flag
+chmod 444 /flag
 
 # User setup
 echo 'root:x:0:0:root:/root:/bin/sh' > /etc/passwd
@@ -41,6 +41,7 @@ chown -R root:root /
 chmod 700 -R /root
 chmod 755 /dev
 chmod 700 /init
+chmod 777 /tmp
 
 # Mounts
 mkdir -p /var/lock
@@ -62,7 +63,8 @@ ifup eth0
 ifconfig eth0
 
 # Shell!
-setsid cttyhack setuidgid 0 sh
+touch /dev/null
+setsid cttyhack setuidgid 1000 /eziot-service
 
 umount /proc
 umount /sys

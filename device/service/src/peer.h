@@ -11,7 +11,7 @@
 #define CLOUD_PORT 54321
 
 #ifndef SECRET
-#define SECRET "RANDOMSECRETHERE"
+#define SECRET "THISISREALSECRET"
 #endif
 
 typedef struct __attribute__((__packed__)) packet_assign {
@@ -26,6 +26,11 @@ typedef struct __attribute__((__packed__)) packet_peer {
     uint16_t port;
 } packet_peer_t;
 
+typedef struct __attribute__((__packed__)) packet_action {
+    char header[4];
+    char buf[0];
+} packet_action_t;
+
 typedef struct __peer {
     int udp;
     struct sockaddr_in cloud_addr;
@@ -36,5 +41,6 @@ Peer *peer_ctor(char *cloud_ip, unsigned short cloud_port);
 int peer_assign(Peer *peer, char *secret);
 int peer_connect(Peer *peer);
 int peer_recv(Peer *peer, void *buf, size_t len);
+int peer_send(Peer *peer, void *buf, size_t len);
 
 #endif

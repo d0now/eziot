@@ -119,3 +119,12 @@ int peer_recv(Peer *peer, void *buf, size_t len)
 
     return recvfrom_result;
 }
+
+int peer_send(Peer *peer, void *buf, size_t len)
+{
+    int sendto_result = sendto(peer->udp, buf, len, 0,
+                               (struct sockaddr *)(&peer->peer_addr),
+                               sizeof(peer->peer_addr));
+
+    return sendto_result;
+}

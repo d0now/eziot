@@ -64,7 +64,7 @@ def auto_drop_peers() -> None:
 
     for i in range(len(peers)):
         peer = peers[i]
-        if peer.get_creat() + 300 > time.time():
+        if peer.get_creat() + 15 > time.time():
             new_peers.append(peer)
 
     peers = new_peers

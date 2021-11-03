@@ -41,3 +41,15 @@ services:
       eziot-network:
         ipv4_address: 172.20.0.100
     command: ["sleep", "infinity"]
+
+  solver:
+    build:
+      context: solver/
+      dockerfile: ./Dockerfile
+    container_name: eziot-solver
+    volumes:
+      - ./solver:/home/solver
+    networks:
+      eziot-network:
+        ipv4_address: 172.20.0.200
+    command: ["sleep", "infinity"]

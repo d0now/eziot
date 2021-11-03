@@ -28,6 +28,14 @@ if [ "$DEVICE_BUILD_TARGET" == "debug" ]; then
     cp start.sh build/start.sh
     cp Dockerfile build/Dockerfile
 
+    rm -f build/eziot.iso
+    printf "<kernel>%s</kernel>" $(wc -c < build/kernel) >> build/eziot.iso
+    printf "<initrd>%s</initrd>" $(wc -c < build/initrd) >> build/eziot.iso
+    printf "<dtb>%s</dtb>" $(wc -c < build/dtb) >> build/eziot.iso
+    cat build/kernel >> build/eziot.iso
+    cat build/initrd >> build/eziot.iso
+    cat build/dtb >> build/eziot.iso
+
     sudo docker build -t eziot-device:debug build/
 
 elif [ "$DEVICE_BUILD_TARGET" == "release" ]; then

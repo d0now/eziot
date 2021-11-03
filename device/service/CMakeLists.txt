@@ -36,6 +36,8 @@ target_sources(${CMAKE_PROJECT_NAME}
         src/main.c
         src/proc.c
         src/peer.c
+        src/handler.c
+        src/util.c
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME}
@@ -46,13 +48,13 @@ target_include_directories(${CMAKE_PROJECT_NAME}
 # Add compile options.
 target_compile_options(${CMAKE_PROJECT_NAME}
     PUBLIC
-        --target=${BUILD_TARGET} -no-pie
+        --target=${BUILD_TARGET}
 )
 
 # Add link options.
 target_link_options(${CMAKE_PROJECT_NAME}
     PUBLIC
-        --target=${BUILD_TARGET} -no-pie -static
+        --target=${BUILD_TARGET} -static
 )
 
 # Add libraries.
